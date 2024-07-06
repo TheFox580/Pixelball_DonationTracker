@@ -1,0 +1,64 @@
+# Tutorial: https://github.com/awesomepandapig/DonationBossbar#donation-bossbar
+access-token: ""
+campaign-id: ""
+main-title-color: "&c"
+main-bar-color: "GREEN"
+goal-message: "Goal Reached!"
+goal-title-color: "&b"
+goal-bar-color: "BLUE"
+
+#donations -
+#5 = pokeball
+#10 = diamond
+#20 = random pokemon stone
+#30 = skeleton
+#50 = creeper
+#100 = everyone gets a random effect for 3 minutes?
+#
+#Goals -
+#100 = 1 random shiney will spawn around each player
+#200 = 1 random shiney will spawn around each player
+#300 = nether will open
+#400 = 1 random shiney will spawn around each player
+#500 = 3 legendary pokemon spawns at 0,0
+donations:
+  5:
+    action: "give {player} cobblemon:poke_ball 1"
+    title: "Pokeball"
+  10:
+    action: "give {player} minecraft:diamond 1"
+    title: "Diamond"
+  20:
+    action: "random_stone 1"
+    title: "Random Pokemon Stone"
+  30:
+    action: "summon skeleton"
+    title: "Summon Skeleton"
+  50:
+    action: "summon creeper"
+    title: "Summon Creeper"
+  100:
+    action: "random_effect 180"
+    title: "Random Effect"
+
+goals:
+  100:
+    action: "spawnpokemon shiny random"
+    title: "Random Shiny"
+    reached: false
+  200:
+    action: "spawnpokemon shiny random"
+    title: "Random Shiny"
+    reached: false
+  300:
+    action: "enablenether"
+    title: "Enable Nether"
+    reached: false
+  400:
+    action: "spawnpokemon shiny random"
+    title: "Random Shiny"
+    reached: false
+  500:
+    action: "legendaryspawn 3"
+    title: "Random Legendaries"
+    reached: false
