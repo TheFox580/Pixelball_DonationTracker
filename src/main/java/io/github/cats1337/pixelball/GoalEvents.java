@@ -12,7 +12,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -63,7 +62,7 @@ public class GoalEvents {
 
         Objects.requireNonNull(config.getConfigurationSection("donations")).getKeys(false).forEach(key -> {
             if (amount >= Double.parseDouble(key)) {
-                String action = config.getString("donations." + key);
+                String action = config.getString("donations." + key + ".action");
                 String title = config.getString("donations." + key + ".title");
                 Bukkit.broadcastMessage(colorize("&aDonation of &2$" + amount + "&a! &eExecuting action: " + title));
                 // check the type of action
