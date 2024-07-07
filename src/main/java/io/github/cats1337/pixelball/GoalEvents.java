@@ -12,7 +12,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -63,7 +62,7 @@ public class GoalEvents {
 
         Objects.requireNonNull(config.getConfigurationSection("donations")).getKeys(false).forEach(key -> {
             if (amount >= Double.parseDouble(key)) {
-                String action = config.getString("donations." + key);
+                String action = config.getString("donations." + key + ".action");
                 String title = config.getString("donations." + key + ".title");
                 Bukkit.broadcastMessage(colorize("&aDonation of &2$" + amount + "&a! &eExecuting action: " + title));
                 // check the type of action
@@ -101,7 +100,7 @@ public class GoalEvents {
 
                     case "random_stone":
                         // list of stones
-                        String[] stones = {"fire_stone", "water_stone", "thunder_stone", "leaf_stone", "moon_stone", "sun_stone", "shint_stone", "dusk_stone", "dawn_stone", "ice_stone", "oval_stone"};
+                        String[] stones = {"fire_stone", "water_stone", "thunder_stone", "leaf_stone", "moon_stone", "sun_stone", "shiny_stone", "dusk_stone", "dawn_stone", "ice_stone", "oval_stone"};
 
                         for (Player p : Bukkit.getOnlinePlayers()) {
                             String stone = stones[(int) (Math.random() * stones.length)];
@@ -152,7 +151,7 @@ public class GoalEvents {
                         String rarity = actionParts[1];
                         String pokemon = actionParts[2];
                         for (Player p : Bukkit.getOnlinePlayers()) {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "spawnpokemonat ~ ~ ~" + rarity + " " + pokemon);
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "spawnpokemonat ~ ~ ~ " + rarity + " " + pokemon);
                         }
                         break;
                     case "enablenether":

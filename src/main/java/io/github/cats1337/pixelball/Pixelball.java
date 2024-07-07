@@ -11,6 +11,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 import static io.github.cats1337.pixelball.Colors.colorize;
 
 public final class Pixelball extends JavaPlugin {
@@ -57,7 +60,6 @@ public final class Pixelball extends JavaPlugin {
         this.donationBar.attemptToCancel();
 
         // get the config values
-        String token = this.getConfig().getString("access-token");
         String id = this.getConfig().getString("campaign-id");
         String mainTitleColor = this.getConfig().getString("main-title-color");
         String mainBarColor = this.getConfig().getString("main-bar-color");
@@ -67,7 +69,7 @@ public final class Pixelball extends JavaPlugin {
 
         // create the boss bar
         this.donationBar = new DonationBar();
-        this.donationBar.createBar(token, id, mainTitleColor, mainBarColor, goalMsg, goalTitleColor, goalBarColor);
+        this.donationBar.createBar(id, mainTitleColor, mainBarColor, goalMsg, goalTitleColor, goalBarColor);
 
         // add all online players to the boss bar
         Bukkit.getOnlinePlayers().forEach(this.donationBar::addPlayer);
@@ -92,6 +94,14 @@ public final class Pixelball extends JavaPlugin {
             if (args[0].equalsIgnoreCase("reload")) {
                 sender.sendMessage(colorize("&aReloaded Donation Bossbar&r"));
                 this.createBossBar();
+            }
+
+            if (args[0].equalsIgnoreCase("raised")) {
+                if (args[1].equalsIgnoreCase("set")) {
+                    this.getConfig().set("total_amount_raised", Double.parseDouble(args[2]));
+                    String mainTitleColor = this.getConfig().getString("main-title-color");
+                    this.donationBar.getBossBar().setTitle(colorize(mainTitleColor + "Raised $" + NumberFormat.getInstance(Locale.US).format(Double.parseDouble(args[2])) + " of $" + NumberFormat.getInstance(Locale.US).format(300)));
+                }
             }
         }
         return false;

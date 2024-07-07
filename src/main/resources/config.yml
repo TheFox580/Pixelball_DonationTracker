@@ -1,6 +1,8 @@
 # Tutorial: https://github.com/awesomepandapig/DonationBossbar#donation-bossbar
-access-token: ""
+client-id: ""
+client-secret: ""
 campaign-id: ""
+total_amount_raised: 0
 main-title-color: "&c"
 main-bar-color: "GREEN"
 goal-message: "Goal Reached!"
