@@ -69,7 +69,7 @@ public final class DonationBar {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }, 0L, 20 * 10L);
+        }, 0L, 20 * 30L);
     }
 
     private JsonElement requestToken() throws IOException {
