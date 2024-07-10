@@ -2,7 +2,7 @@ name: Pixelball
 version: '${project.version}'
 main: io.github.cats1337.pixelball.Pixelball
 api-version: '1.20'
-authors: [Cats1337, awesomepandapig, MarcusSlover]
+authors: [Cats1337, TheFox580, awesomepandapig, MarcusSlover]
 description: Pixelball
 commands:
   donationbb:

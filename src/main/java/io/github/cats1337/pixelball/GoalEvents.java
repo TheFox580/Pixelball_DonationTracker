@@ -1,5 +1,10 @@
 package io.github.cats1337.pixelball;
 
+import com.google.common.net.HttpHeaders;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -12,11 +17,17 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 import static io.github.cats1337.pixelball.Colors.colorize;
+import static io.github.cats1337.pixelball.DonationBar.requestToken;
 
 public class GoalEvents {
     private final Pixelball plugin;
@@ -58,69 +69,89 @@ public class GoalEvents {
     }
 
     // Check and process donations based on amount
-    public void checkDonations(double amount) {
+    public void checkDonations(final double amount) {
 
         Objects.requireNonNull(config.getConfigurationSection("donations")).getKeys(false).forEach(key -> {
-            if (amount >= Double.parseDouble(key)) {
-                String action = config.getString("donations." + key + ".action");
-                String title = config.getString("donations." + key + ".title");
-                Bukkit.broadcastMessage(colorize("&aDonation of &2$" + amount + "&a! &eExecuting action: " + title));
-                // check the type of action
-                // 'give {player} pokeball 1'
-                // 'summon skeleton ~ ~ ~'
-                // 'random_effect'
-
-                // get the first word of the action
-                String[] actionParts = action.split(" ");
-                String actionType = actionParts[0];
-                // if actionType is 'give'
-                switch (actionType) {
-                    case "give":
-                        // give the player the item
-
-                        for (Player p : Bukkit.getOnlinePlayers()) {
-                            String formattedAction = action.replace("{player}", p.getName());
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), formattedAction);
-                        }
+            try {
+                final JsonObject jsonObject = requestDonorsJson(config.getString("campaign-id"));
+                JsonArray data = jsonObject.get("data").getAsJsonArray();
+                double dono = amount;
+                for (int i = 0; i < 3; i++){
+                    if (dono <= 0){
                         break;
-                    case "summon":
-                        // summon the entity
-                        for (Player p : Bukkit.getOnlinePlayers()) {
-                            String entityName = actionParts[1];
-                            EntityType entityType = EntityType.valueOf(entityName.toUpperCase());
+                    } else if (data.get(i).isJsonNull()){
+                        break;
+                    } else {
+                        JsonObject donorData = data.get(i).getAsJsonObject();
+                        double donorAmount = donorData.get("amount").getAsJsonObject().get("value").getAsDouble();
+                        dono -= donorAmount;
+                        if (donorAmount >= Double.parseDouble(key)) {
+                            String action = config.getString("donations." + key + ".action");
+                            String title = config.getString("donations." + key + ".title");
+                            String donator = donorData.get("donor_name").getAsString();
+                            String comment = donorData.get("donor_comment").getAsString();
+                            Bukkit.broadcastMessage(colorize("&aDonation from " + donator + " of &2$" + donorAmount + "&a! Their comment : \"" + comment + "\" &eExecuting action: " + title));
+                            // check the type of action
+                            // 'give {player} pokeball 1'
+                            // 'summon skeleton ~ ~ ~'
+                            // 'random_effect'
 
-                            // summon the entity at a random location near player's location
-                            Location spawnLocation = p.getLocation().add(Math.random() * 6 - 3, 0, Math.random() * 6 - 3);
-                            Entity entity = p.getWorld().spawnEntity(spawnLocation, entityType);
-                            if (entity instanceof LivingEntity) {
-                                ((LivingEntity) entity).setAI(true);
+                            // get the first word of the action
+                            String[] actionParts = action.split(" ");
+                            String actionType = actionParts[0];
+                            // if actionType is 'give'
+                            switch (actionType) {
+                                case "give":
+                                    // give the player the item
+
+                                    for (Player p : Bukkit.getOnlinePlayers()) {
+                                        String formattedAction = action.replace("{player}", p.getName());
+                                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), formattedAction);
+                                    }
+                                    break;
+                                case "summon":
+                                    // summon the entity
+                                    for (Player p : Bukkit.getOnlinePlayers()) {
+                                        String entityName = actionParts[1];
+                                        EntityType entityType = EntityType.valueOf(entityName.toUpperCase());
+
+                                        // summon the entity at a random location near player's location
+                                        Location spawnLocation = p.getLocation().add(Math.random() * 6 - 3, 0, Math.random() * 6 - 3);
+                                        Entity entity = p.getWorld().spawnEntity(spawnLocation, entityType);
+                                        if (entity instanceof LivingEntity) {
+                                            ((LivingEntity) entity).setAI(true);
+                                        }
+                                    }
+                                    break;
+
+                                case "random_stone":
+                                    // list of stones
+                                    String[] stones = {"fire_stone", "water_stone", "thunder_stone", "leaf_stone", "moon_stone", "sun_stone", "shiny_stone", "dusk_stone", "dawn_stone", "ice_stone", "oval_stone"};
+
+                                    for (Player p : Bukkit.getOnlinePlayers()) {
+                                        String stone = stones[(int) (Math.random() * stones.length)];
+                                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName() + " cobblemon:" + stone + " 1");
+                                    }
+                                    break;
+
+                                case "random_effect":
+                                    int duration = Integer.parseInt(actionParts[1]);
+                                    // random effect
+                                    for (Player p : Bukkit.getOnlinePlayers()) {
+                                        PotionEffect effect = new PotionEffect(PotionEffectType.values()[(int) (Math.random() * PotionEffectType.values().length)], duration, 0); // random effect, lvl 0 aka lvl 1
+                                        // give the player a random effect
+                                        p.addPotionEffect(effect);
+                                    }
+                                    break;
+                                default:
+                                    Bukkit.broadcastMessage(colorize("&cInvalid action type: " + actionType));
+                                    break;
                             }
                         }
-                        break;
-
-                    case "random_stone":
-                        // list of stones
-                        String[] stones = {"fire_stone", "water_stone", "thunder_stone", "leaf_stone", "moon_stone", "sun_stone", "shiny_stone", "dusk_stone", "dawn_stone", "ice_stone", "oval_stone"};
-
-                        for (Player p : Bukkit.getOnlinePlayers()) {
-                            String stone = stones[(int) (Math.random() * stones.length)];
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName() + " cobblemon:" + stone + " 1");
-                        }
-                        break;
-
-                    case "random_effect":
-                        int duration = Integer.parseInt(actionParts[1]);
-                        // random effect
-                        for (Player p : Bukkit.getOnlinePlayers()) {
-                            PotionEffect effect = new PotionEffect(PotionEffectType.values()[(int) (Math.random() * PotionEffectType.values().length)], duration, 0); // random effect, lvl 0 aka lvl 1
-                            // give the player a random effect
-                            p.addPotionEffect(effect);
-                        }
-                        break;
-                    default:
-                        Bukkit.broadcastMessage(colorize("&cInvalid action type: " + actionType));
-                        break;
+                    }
                 }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         });
     }
@@ -151,7 +182,10 @@ public class GoalEvents {
                         String rarity = actionParts[1];
                         String pokemon = actionParts[2];
                         for (Player p : Bukkit.getOnlinePlayers()) {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "spawnpokemonat ~ ~ ~ " + rarity + " " + pokemon);
+                            int xLoc = p.getLocation().getBlockX();
+                            int yLoc = p.getLocation().getBlockY();
+                            int zLoc = p.getLocation().getBlockZ();
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "spawnpokemonat " + xLoc + " " + yLoc + " " + zLoc + " " + rarity + " " + pokemon);
                         }
                         break;
                     case "enablenether":
@@ -168,7 +202,7 @@ public class GoalEvents {
                             int randomX = (int) (Math.random() * 1000 - 500);
                             int randomZ = (int) (Math.random() * 1000 - 500);
                             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "spawnpokemonat " + randomX + " 100 " + randomZ + " " + legendaries[i]);
-                            Bukkit.broadcastMessage(colorize("&6Legendary spawned! " + legendaries[i] + " at " + randomX + randomZ));
+                            Bukkit.broadcastMessage(colorize("&6Legendary  " + legendaries[i] + " spawned! "));
                         }
 
                         break;
@@ -216,5 +250,22 @@ public class GoalEvents {
         public void setReached(boolean reached) {
             this.reached = reached;
         }
+    }
+
+    private JsonObject requestDonorsJson(String id) throws IOException {
+        URL url = new URL("https://v5api.tiltify.com/api/public/team_campaigns/" + id + "/donations?limit=3");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        String token = requestToken().getAsJsonObject().get("access_token").getAsString();
+        conn.setRequestProperty(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestMethod("GET");
+
+        JsonElement data;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+            data = JsonParser.parseReader(reader);
+        }
+        if (data == null) throw new RuntimeException("Could not get the response, the data is null.");
+        if (data.isJsonObject()) return data.getAsJsonObject();
+        throw new RuntimeException("Invalid response!");
     }
 }
