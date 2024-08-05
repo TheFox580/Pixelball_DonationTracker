@@ -1,5 +1,6 @@
 package io.github.cats1337.pixelball;
 
+import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.boss.BossBar;
@@ -9,12 +10,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 
 import static io.github.cats1337.pixelball.Colors.colorize;
+import static io.github.cats1337.pixelball.DonationBar.requestJson;
 
 public final class Pixelball extends JavaPlugin {
 
@@ -37,6 +41,9 @@ public final class Pixelball extends JavaPlugin {
                 }
             }
         }, this);
+
+        BukkitTask netherLimit = new NetherLimit().runTaskTimer(this, 0L, 1L);
+
     }
 
     @Override
@@ -100,10 +107,19 @@ public final class Pixelball extends JavaPlugin {
                 if (args[1].equalsIgnoreCase("set")) {
                     this.getConfig().set("total_amount_raised", Double.parseDouble(args[2]));
                     String mainTitleColor = this.getConfig().getString("main-title-color");
-                    this.donationBar.getBossBar().setTitle(colorize(mainTitleColor + "Raised $" + NumberFormat.getInstance(Locale.US).format(Double.parseDouble(args[2])) + " of $" + NumberFormat.getInstance(Locale.US).format(300)));
+                    String id = this.getConfig().getString("campaign-id");
+                    try {
+                        final JsonObject jsonObject = requestJson(id);
+                        JsonObject data = jsonObject.get("data").getAsJsonObject();
+                        double fundraiserGoalAmount = data.get("goal").getAsJsonObject().get("value").getAsDouble();
+                        this.donationBar.getBossBar().setTitle(colorize(mainTitleColor + "Raised $" + NumberFormat.getInstance(Locale.US).format(Double.parseDouble(args[2])) + " of $" + NumberFormat.getInstance(Locale.US).format(fundraiserGoalAmount)));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }
         return false;
     }
+
 }

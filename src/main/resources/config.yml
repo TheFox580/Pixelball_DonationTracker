@@ -8,6 +8,7 @@ main-bar-color: "GREEN"
 goal-message: "Goal Reached!"
 goal-title-color: "&b"
 goal-bar-color: "BLUE"
+nether-limit: 3000
 
 #donations -
 #5 = pokeball

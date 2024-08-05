@@ -41,7 +41,7 @@ public final class DonationBar {
 
         this.bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(Pixelball.getInstance(), () -> {
             try {
-                final JsonObject jsonObject = this.requestJson(id);
+                final JsonObject jsonObject = requestJson(id);
                 Bukkit.getScheduler().runTask(Pixelball.getInstance(), () -> {
                     JsonObject data = jsonObject.get("data").getAsJsonObject();
                     double totalAmountRaised = data.get("amount_raised").getAsJsonObject().get("value").getAsDouble();
@@ -72,7 +72,7 @@ public final class DonationBar {
         }, 0L, 20 * 30L);
     }
 
-    private JsonElement requestToken() throws IOException {
+    public static JsonElement requestToken() throws IOException {
         URL obj = new URL("https://v5api.tiltify.com/oauth/token");
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("POST");
@@ -109,7 +109,7 @@ public final class DonationBar {
         return data;
     }
 
-    private JsonObject requestJson(String id) throws IOException {
+    public static JsonObject requestJson(String id) throws IOException {
         URL url = new URL("https://v5api.tiltify.com/api/public/team_campaigns/" + id);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         String token = requestToken().getAsJsonObject().get("access_token").getAsString();
