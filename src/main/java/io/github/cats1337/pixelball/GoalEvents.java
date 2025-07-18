@@ -89,8 +89,14 @@ public class GoalEvents {
                             String action = config.getString("donations." + key + ".action");
                             String title = config.getString("donations." + key + ".title");
                             String donator = donorData.get("donor_name").getAsString();
-                            String comment = donorData.get("donor_comment").getAsString();
-                            Bukkit.broadcastMessage(colorize("&aDonation from " + donator + " of &2$" + donorAmount + "&a! Their comment : \"" + comment + "\" &eExecuting action: " + title));
+                            String comment = "";
+                            if (donorData.get("donor_comment").isJsonNull()){
+                                Bukkit.broadcastMessage(colorize("&aDonation from " + donator + " of &2$" + donorAmount + "&a! &eExecuting action: " + title));
+
+                            } else {
+                                comment = donorData.get("donor_comment").getAsString();
+                                Bukkit.broadcastMessage(colorize("&aDonation from " + donator + " of &2$" + donorAmount + "&a! Their comment : \"" + comment + "\" &eExecuting action: " + title));
+                            }
                             // check the type of action
                             // 'give {player} pokeball 1'
                             // 'summon skeleton ~ ~ ~'
@@ -101,11 +107,22 @@ public class GoalEvents {
                             String actionType = actionParts[0];
                             // if actionType is 'give'
                             switch (actionType) {
+                                case "spawnpokemon":
+                                    // spawnpokemon shiny random
+                                    String rarity = actionParts[1];
+                                    String pokemon = actionParts[2];
+                                    for (Player p : Bukkit.getOnlinePlayers()) {
+                                        int xLoc = p.getLocation().getBlockX();
+                                        int yLoc = p.getLocation().getBlockY()+1;
+                                        int zLoc = p.getLocation().getBlockZ();
+                                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "spawnpokemonat " + xLoc + " " + yLoc + " " + zLoc + " " + pokemon + " " + rarity);
+                                    }
+                                    break;
                                 case "give":
                                     // give the player the item
 
                                     for (Player p : Bukkit.getOnlinePlayers()) {
-                                        String formattedAction = action.replace("{player}", p.getName());
+                                        String formattedAction = action.replace("player", p.getName());
                                         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), formattedAction);
                                     }
                                     break;
@@ -131,6 +148,35 @@ public class GoalEvents {
                                     for (Player p : Bukkit.getOnlinePlayers()) {
                                         String stone = stones[(int) (Math.random() * stones.length)];
                                         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName() + " cobblemon:" + stone + " 1");
+                                    }
+                                    break;
+
+                                case "random_held_item":
+                                    // list of held items
+                                    String[] heldItems = {"ability_shield", "absorb_bulb", "air_balloon", "assault_vest",
+                                            "big_root", "binding_band", "black_sludge", "blunder_policy", "bright_powder", "black_belt", "black_glasses",
+                                            "cell_battery", "choice_band", "choice_scarf", "choice_specs", "cleanse_tag", "covert_cloak", "charcoal_stick",
+                                            "damp_rock", "deep_sea_scale", "deep_sea_tooth", "destiny_knot", "dragon_fang",
+                                            "eject_button", "eject_pack", "everstone", "eviolite", "expert_belt", "exp_share",
+                                            "flame_orb", "float_stone", "focus_band", "focus_sash", "fairy_feather",
+                                            "heat_rock", "hard_stone",
+                                            "icy_rock", "iron_ball",
+                                            "kings_rock",
+                                            "leftovers", "life_orb", "light_ball", "light_clay", "loaded_dice", "lucky_egg",
+                                            "medicinal_leek", "mental_herb", "metal_powder", "metronome", "mirror_herb", "muscle_band", "magnet", "metal_coat", "miracle_seed", "mystic_water",
+                                            "never_melt_ice",
+                                            "power_herb", "punching_glove", "protective_pads", "poison_barb", "power_anklet", "power_band", "power_belt", "power_bracer", "power_lens", "power_weight",
+                                            "quick_claw", "quick_powder",
+                                            "razor_claw", "razor_fang", "red_card", "ring_target", "rocky_helmet", "room_service",
+                                            "safety_goggles", "scope_lens", "shed_shell", "shell_bell", "smoke_ball", "smooth_rock", "soothe_bell", "sticky_barb", "sharp_beak", "silk_scarf", "silver_powder", "soft_sand", "spell_tag",
+                                            "terrain_extender", "throat_spray", "toxic_orb", "twisted_spoon",
+                                            "utility_umbrella",
+                                            "weakness_policy", "white_herb", "wide_lens", "wise_glasses",
+                                            "zoom_lens"};
+
+                                    for (Player p : Bukkit.getOnlinePlayers()) {
+                                        String heldItem = heldItems[(int) (Math.random() * heldItems.length)];
+                                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName() + " cobblemon:" + heldItem + " 1");
                                     }
                                     break;
 
@@ -183,13 +229,13 @@ public class GoalEvents {
                         String pokemon = actionParts[2];
                         for (Player p : Bukkit.getOnlinePlayers()) {
                             int xLoc = p.getLocation().getBlockX();
-                            int yLoc = p.getLocation().getBlockY();
+                            int yLoc = p.getLocation().getBlockY()+1;
                             int zLoc = p.getLocation().getBlockZ();
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "spawnpokemonat " + xLoc + " " + yLoc + " " + zLoc + " " + rarity + " " + pokemon);
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "spawnpokemonat " + xLoc + " " + yLoc + " " + zLoc + " " + pokemon + " " + rarity);
                         }
                         break;
                     case "enablenether":
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "&cNether &aEnabled!");
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "say Nether Enabled!");
                         break;
                     case "legendaryspawn":
                         int amount = Integer.parseInt(actionParts[1]);

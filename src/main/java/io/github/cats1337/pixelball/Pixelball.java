@@ -1,21 +1,31 @@
 package io.github.cats1337.pixelball;
 
 import com.google.gson.JsonObject;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.boss.BossBar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Text;
 
+import javax.naming.Name;
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.util.Locale;
+import java.util.*;
 
 import static io.github.cats1337.pixelball.Colors.colorize;
 import static io.github.cats1337.pixelball.DonationBar.requestJson;
@@ -23,6 +33,8 @@ import static io.github.cats1337.pixelball.DonationBar.requestJson;
 public final class Pixelball extends JavaPlugin {
 
     private DonationBar donationBar;
+    private DonationBoard donationBoard;
+    private final Map<Player, Player> tpa = new HashMap<>();
 
     public static Pixelball getInstance() {
         return Pixelball.getPlugin(Pixelball.class);
@@ -31,6 +43,18 @@ public final class Pixelball extends JavaPlugin {
     @Override
     public void onEnable() {
         this.saveDefaultConfig();
+
+        TextDisplay display = null;
+
+        for (Entity entity : Objects.requireNonNull(Bukkit.getWorld("world")).getEntities()){
+            if (entity instanceof TextDisplay textDisplay){
+                display = textDisplay;
+                break;
+            }
+        }
+
+        donationBoard = new DonationBoard(this, display);
+
         this.createBossBar(); // create the boss bar before registering the event listener
 
         this.getServer().getPluginManager().registerEvents(new Listener() {
@@ -41,7 +65,6 @@ public final class Pixelball extends JavaPlugin {
                 }
             }
         }, this);
-
         BukkitTask netherLimit = new NetherLimit().runTaskTimer(this, 0L, 1L);
 
     }
@@ -119,7 +142,74 @@ public final class Pixelball extends JavaPlugin {
                 }
             }
         }
+        else if (label.equalsIgnoreCase("tpa")){
+            if (sender instanceof Player playerSender){
+                if (args.length != 1){
+                    sender.sendMessage(Component.text("Please only enter a username.", NamedTextColor.RED));
+                } else {
+                    Player player = Bukkit.getPlayer(args[0]);
+                    if (player == null){
+                        sender.sendMessage(Component.text("Please enter a valid username.", NamedTextColor.RED));
+                    } else {
+                        Component startText = Component.text(sender.getName() + " wants to teleport to you. Click ");
+
+                        Component teleportYes = Component.text("here or type /tpaccept to accept", NamedTextColor.GREEN, TextDecoration.BOLD);
+                        teleportYes = teleportYes.clickEvent(ClickEvent.runCommand("/tpaccept"));
+
+                        Component or = Component.text(" or ", NamedTextColor.WHITE);
+
+                        Component teleportNo = Component.text("here or type /tprefuse to refuse.", NamedTextColor.RED, TextDecoration.BOLD);
+                        teleportNo = teleportNo.clickEvent(ClickEvent.runCommand("/tprefuse"));
+
+                        tpa.put(player, playerSender);
+
+                        player.sendMessage(startText.append(teleportYes).append(or).append(teleportNo));
+                        sender.sendMessage(Component.text("Sent request to " + args[0] + "."));
+                    }
+                }
+            } else {
+                sender.sendMessage(Component.text("You need to be a player to execute this command.", NamedTextColor.RED));
+            }
+        }
+        else if (label.equalsIgnoreCase("tpaccept")){
+            if (sender instanceof Player playerSender){
+                if (!Objects.equals(tpa.get(playerSender), null)){
+                    Player player = tpa.get(playerSender);
+
+                    playerSender.teleport(player);
+
+                    player.sendMessage(Component.text(sender.getName() + " teleported to you.", NamedTextColor.GREEN));
+                    sender.sendMessage(Component.text("You got teleported to " + player.getName() + ".", NamedTextColor.GREEN));
+
+                    tpa.put(playerSender, null);
+                } else {
+                    sender.sendMessage(Component.text("You have no ongoing tpa requests.", NamedTextColor.RED));
+                }
+            } else {
+                sender.sendMessage(Component.text("You need to be a player to execute this command.", NamedTextColor.RED));
+            }
+        }
+        else if (label.equalsIgnoreCase("tprefuse")){
+            if (sender instanceof Player playerSender){
+                if (!Objects.equals(tpa.get(playerSender), null)){
+                    Player player = tpa.get(playerSender);
+
+                    player.sendMessage(Component.text("You refused " + sender.getName() + "'s teleportation request.", NamedTextColor.RED));
+                    sender.sendMessage(Component.text(player.getName() + " refused your teleportation request.", NamedTextColor.RED));
+
+                    tpa.put(playerSender, null);
+                } else {
+                    sender.sendMessage(Component.text("You have no ongoing tpa requests.", NamedTextColor.RED));
+                }
+            } else {
+                sender.sendMessage(Component.text("You need to be a player to execute this command.", NamedTextColor.RED));
+            }
+        }
         return false;
+    }
+
+    public DonationBoard getDonationBoard(){
+        return donationBoard;
     }
 
 }

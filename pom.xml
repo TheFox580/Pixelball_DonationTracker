@@ -6,7 +6,7 @@
 
   <groupId>io.github.cats1337</groupId>
   <artifactId>Pixelball</artifactId>
-  <version>1.0.4</version>
+  <version>3.0.0</version>
   <packaging>jar</packaging>
 
   <name>Pixelball</name>
@@ -51,7 +51,7 @@
 
   <repositories>
       <repository>
-          <id>papermc-repo</id>
+          <id>papermc</id>
           <url>https://repo.papermc.io/repository/maven-public/</url>
       </repository>
       <repository>
@@ -64,8 +64,33 @@
       <dependency>
           <groupId>io.papermc.paper</groupId>
           <artifactId>paper-api</artifactId>
-          <version>1.20.1-R0.1-SNAPSHOT</version>
+          <version>1.21.1-R0.1-SNAPSHOT</version>
           <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>net.kyori</groupId>
+          <artifactId>adventure-api</artifactId>
+          <version>4.22.0</version>
+      </dependency>
+      <dependency>
+          <groupId>net.kyori</groupId>
+          <artifactId>adventure-text-minimessage</artifactId>
+          <version>4.22.0</version>
+      </dependency>
+      <dependency>
+          <groupId>net.kyori</groupId>
+          <artifactId>adventure-text-serializer-plain</artifactId>
+          <version>4.22.0</version>
+      </dependency>
+      <dependency>
+          <groupId>net.kyori</groupId>
+          <artifactId>adventure-text-serializer-legacy</artifactId>
+          <version>4.22.0</version>
+      </dependency>
+      <dependency>
+          <groupId>net.kyori</groupId>
+          <artifactId>adventure-text-serializer-gson</artifactId>
+          <version>4.22.0</version>
       </dependency>
       <dependency>
           <groupId>com.google.code.gson</groupId>

@@ -3,46 +3,39 @@ client-id: ""
 client-secret: ""
 campaign-id: ""
 total_amount_raised: 0
-main-title-color: "&c"
-main-bar-color: "GREEN"
+main-title-color: "&d"
+main-bar-color: "WHITE"
 goal-message: "Goal Reached!"
-goal-title-color: "&b"
+goal-title-color: "&f"
 goal-bar-color: "BLUE"
-nether-limit: 3000
+nether-limit: 7500
 
 #donations -
 #5 = pokeball
-#10 = diamond
-#20 = random pokemon stone
-#30 = skeleton
-#50 = creeper
-#100 = everyone gets a random effect for 3 minutes?
-#
+#10 = random pokemon stone
+#25 = random held item
+#50 = eevee shiny
+
 #Goals -
-#100 = 1 random shiney will spawn around each player
-#200 = 1 random shiney will spawn around each player
-#300 = nether will open
-#400 = 1 random shiney will spawn around each player
+#every 100 = 1 random shiney will spawn around each player
+#250 = nether will open
 #500 = 3 legendary pokemon spawns at 0,0
+#750 = end will open
+#1500 = gun mod
+
 donations:
   5:
-    action: "give {player} cobblemon:poke_ball 1"
+    action: "give player cobblemon:poke_ball 1"
     title: "Pokeball"
   10:
-    action: "give {player} minecraft:diamond 1"
-    title: "Diamond"
-  20:
     action: "random_stone 1"
     title: "Random Pokemon Stone"
-  30:
-    action: "summon skeleton"
-    title: "Summon Skeleton"
+  25:
+    action: "random_held_item 1"
+    title: "Random Held Item"
   50:
-    action: "summon creeper"
-    title: "Summon Creeper"
-  100:
-    action: "random_effect 180"
-    title: "Random Effect"
+    action: "spawnpokemon shiny random"
+    title: "Eevee Shiny"
 
 goals:
   100:
@@ -53,15 +46,67 @@ goals:
     action: "spawnpokemon shiny random"
     title: "Random Shiny"
     reached: false
-  300:
+  250:
     action: "enablenether"
     title: "Enable Nether"
     reached: false
+  299:
+    action: "spawnpokemon shiny random"
+    title: "Random Shiny"
+    reached: false
+  300:
+    action: "spawnpokemon shiny random"
+    title: "Random Shiny"
+    reached: false
   400:
+    action: "spawnpokemon shiny random"
+    title: "Random Shiny"
+    reached: false
+  499:
     action: "spawnpokemon shiny random"
     title: "Random Shiny"
     reached: false
   500:
     action: "legendaryspawn 3"
     title: "Random Legendaries"
+    reached: false
+  600:
+    action: "spawnpokemon shiny random"
+    title: "Random Shiny"
+    reached: false
+  700:
+    action: "spawnpokemon shiny random"
+    title: "Random Shiny"
+    reached: false
+  800:
+    action: "spawnpokemon shiny random"
+    title: "Random Shiny"
+    reached: false
+  900:
+    action: "spawnpokemon shiny random"
+    title: "Random Shiny"
+    reached: false
+  1000:
+    action: "spawnpokemon shiny random"
+    title: "Random Shiny"
+    reached: false
+  1100:
+    action: "spawnpokemon shiny random"
+    title: "Random Shiny"
+    reached: false
+  1200:
+    action: "spawnpokemon shiny random"
+    title: "Random Shiny"
+    reached: false
+  1300:
+    action: "spawnpokemon shiny random"
+    title: "Random Shiny"
+    reached: false
+  1400:
+    action: "spawnpokemon shiny random"
+    title: "Random Shiny"
+    reached: false
+  1500:
+    action: "spawnpokemon shiny random"
+    title: "Random Shiny"
     reached: false

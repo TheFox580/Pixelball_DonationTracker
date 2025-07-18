@@ -65,6 +65,11 @@ public final class DonationBar {
                         goalEvents.checkGoals(diff);
                         goalEvents.checkDonations(diff);
                     }
+                    /*try {
+                        DonationBoard.setTopTen(id);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }*/
                 });
             } catch (IOException e) {
                 e.printStackTrace();

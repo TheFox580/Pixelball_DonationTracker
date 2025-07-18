@@ -1,9 +1,15 @@
 name: Pixelball
 version: '${project.version}'
 main: io.github.cats1337.pixelball.Pixelball
-api-version: '1.20'
+api-version: '1.21'
 authors: [Cats1337, TheFox580, awesomepandapig, MarcusSlover]
 description: Pixelball
 commands:
   donationbb:
     description: Donation Bossbar Menu
+  tpa:
+    description: Tpa command
+  tpaccept:
+    description: Tpaccept command
+  tprefuse:
+    description: Tprefuse command
